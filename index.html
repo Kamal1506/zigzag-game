@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080b14" />
+  <title>ZIGZAG — Neon Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <canvas id="gameCanvas" aria-label="ZigZag game"></canvas>
+
+    <header class="hud">
+      <div class="brand"><span class="brand-mark">Z</span><span>ZIGZAG</span></div>
+      <div class="hud-stats">
+        <div><span class="label">SCORE</span><strong id="score">0</strong></div>
+        <div><span class="label">BEST</span><strong id="best">0</strong></div>
+      </div>
+      <button id="soundBtn" class="icon-btn" aria-label="Toggle sound">♪</button>
+    </header>
+
+    <section id="startScreen" class="overlay active">
+      <div class="panel">
+        <div class="eyebrow">NEON ARCADE</div>
+        <h1>Stay on the<br><span>edge.</span></h1>
+        <p>One move. Two directions. Zero room for hesitation.</p>
+        <button id="startBtn" class="primary-btn">PLAY NOW <span>→</span></button>
+        <div class="controls"><kbd>SPACE</kbd><span>or</span><kbd>CLICK / TAP</kbd><span>to turn</span></div>
+      </div>
+    </section>
+
+    <section id="gameOverScreen" class="overlay">
+      <div class="panel compact">
+        <div class="eyebrow danger">RUN ENDED</div>
+        <h2>Off the edge.</h2>
+        <div class="result-grid">
+          <div><span>SCORE</span><strong id="finalScore">0</strong></div>
+          <div><span>BEST</span><strong id="finalBest">0</strong></div>
+        </div>
+        <div id="newBest" class="new-best">NEW PERSONAL BEST ✦</div>
+        <button id="restartBtn" class="primary-btn">TRY AGAIN <span>↻</span></button>
+        <div class="controls"><kbd>SPACE</kbd><span>to restart</span></div>
+      </div>
+    </section>
+
+    <div id="hint" class="game-hint">CLICK / TAP / SPACE TO TURN</div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
