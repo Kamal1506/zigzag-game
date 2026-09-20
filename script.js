@@ -1,0 +1,26 @@
+const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('score'),bestEl=document.getElementById('best'),startScreen=document.getElementById('startScreen'),gameOverScreen=document.getElementById('gameOverScreen'),hint=document.getElementById('hint');
+let W,H,dpr,playing=false,over=false,score=0,best=+localStorage.getItem('zigzagBest')||0,sound=true,last=0,trail=[],particles=[];
+let player={x:0,y:0,vx:1,vy:-1,size:12},path=[];
+bestEl.textContent=best;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);if(!playing) buildPath()}
+addEventListener('resize',resize);
+function buildPath(){path=[];let x=W*.56,y=H*.76,dir=-1;for(let i=0;i<42;i++){path.push({x,y});x+=dir*72;y-=43;if(Math.random()>.38)dir*=-1}player.x=W*.56;player.y=H*.76;player.vx=-1;player.vy=-1}
+function reset(){score=0;scoreEl.textContent=0;trail=[];particles=[];over=false;buildPath();playing=true;startScreen.classList.remove('active');gameOverScreen.classList.remove('active');hint.classList.add('show');setTimeout(()=>hint.classList.remove('show'),1800);last=performance.now()}
+function turn(){if(over){reset();return}if(!playing)return;player.vx*=-1;beep(360,.035)}
+function beep(freq,dur){if(!sound)return;try{let a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.frequency.value=freq;o.type='sine';g.gain.setValueAtTime(.035,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+dur);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+dur)}catch(e){}}
+function project(x,y){return{x:W/2+(x-W/2)*1.08,y:y}}
+function drawPath(){ctx.save();ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();path.forEach((p,i)=>{let q=project(p.x,p.y);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)});ctx.strokeStyle='#151d31';ctx.lineWidth=52;ctx.shadowBlur=28;ctx.shadowColor='#000';ctx.stroke();ctx.shadowBlur=0;ctx.strokeStyle='#24304a';ctx.lineWidth=2;ctx.stroke();ctx.restore()}
+function distToSegment(px,py,a,b){let dx=b.x-a.x,dy=b.y-a.y,l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((px-a.x)*dx+(py-a.y)*dy)/l)):0;let x=a.x+t*dx,y=a.y+t*dy;return Math.hypot(px-x,py-y)}
+function safe(){let min=999;for(let i=0;i<path.length-1;i++)min=Math.min(min,distToSegment(player.x,player.y,path[i],path[i+1]));return min<28}
+function update(dt){if(!playing)return;let speed=115+Math.min(score*2.2,145);player.x+=player.vx*speed*dt;player.y+=player.vy*speed*.6*dt;trail.push({x:player.x,y:player.y,a:1});if(trail.length>16)trail.shift();
+for(let p of path)p.y+=speed*.6*dt;player.y+=speed*.6*dt; // lock player vertically while world scrolls
+if(!safe()){end();return}score+=dt*7;let s=Math.floor(score);scoreEl.textContent=s;
+if(path[path.length-1].y>100){let lastP=path[path.length-1],prev=path[path.length-2],dir=Math.sign(lastP.x-prev.x)||1;path.push({x:lastP.x+(Math.random()>.42?-dir:dir)*72,y:lastP.y-43});path.shift()}}
+function end(){playing=false;over=true;let s=Math.floor(score),isBest=s>best;if(isBest){best=s;localStorage.setItem('zigzagBest',best)}bestEl.textContent=best;document.getElementById('finalScore').textContent=s;document.getElementById('finalBest').textContent=best;document.getElementById('newBest').classList.toggle('show',isBest);gameOverScreen.classList.add('active');beep(120,.22);for(let i=0;i<24;i++)particles.push({x:player.x,y:player.y,vx:(Math.random()-.5)*180,vy:(Math.random()-.5)*180,a:1})}
+function drawPlayer(){trail.forEach((t,i)=>{let q=project(t.x,t.y);ctx.beginPath();ctx.arc(q.x,q.y,2+i*.25,0,7);ctx.fillStyle=`rgba(111,255,233,${i/trail.length*.22})`;ctx.fill()});let q=project(player.x,player.y);ctx.save();ctx.shadowBlur=28;ctx.shadowColor='#6fffe9';ctx.fillStyle='#6fffe9';ctx.beginPath();ctx.arc(q.x,q.y,player.size,0,7);ctx.fill();ctx.fillStyle='#dffff9';ctx.beginPath();ctx.arc(q.x-3,q.y-4,3.5,0,7);ctx.fill();ctx.restore()}
+function drawParticles(dt){particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.a-=dt*1.8;ctx.fillStyle=`rgba(111,255,233,${Math.max(0,p.a)})`;ctx.fillRect(p.x,p.y,3,3)});particles=particles.filter(p=>p.a>0)}
+function grid(){ctx.strokeStyle='#ffffff06';ctx.lineWidth=1;for(let x=0;x<W;x+=70){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=70){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}}
+function loop(t){let dt=Math.min((t-last)/1000,.03)||0;last=t;ctx.clearRect(0,0,W,H);grid();if(playing)update(dt);drawPath();drawPlayer();drawParticles(dt);requestAnimationFrame(loop)}
+document.getElementById('startBtn').onclick=reset;document.getElementById('restartBtn').onclick=reset;document.getElementById('soundBtn').onclick=e=>{sound=!sound;e.currentTarget.textContent=sound?'♪':'×'};
+addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowLeft'||e.code==='ArrowRight'){e.preventDefault();if(!playing&&over)reset();else turn()}});canvas.addEventListener('pointerdown',turn);resize();requestAnimationFrame(loop);
