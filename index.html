@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#080b14" />
-  <title>ZIGZAG — Neon Arcade</title>
+  <meta name="theme-color" content="#070912" />
+  <title>ZIGZAG — Wave Arcade</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,10 +12,11 @@
 </head>
 <body>
   <main class="game-shell">
-    <canvas id="gameCanvas" aria-label="ZigZag game"></canvas>
+    <canvas id="gameCanvas" aria-label="ZigZag wave arcade game"></canvas>
 
     <header class="hud">
       <div class="brand"><span class="brand-mark">Z</span><span>ZIGZAG</span></div>
+      <div class="hud-center"><span id="levelHud">LEVEL 01</span><strong id="progressHud">0%</strong></div>
       <div class="hud-stats">
         <div><span class="label">SCORE</span><strong id="score">0</strong></div>
         <div><span class="label">BEST</span><strong id="best">0</strong></div>
@@ -23,31 +24,42 @@
       <button id="soundBtn" class="icon-btn" aria-label="Toggle sound">♪</button>
     </header>
 
-    <section id="startScreen" class="overlay active">
-      <div class="panel">
-        <div class="eyebrow">NEON ARCADE</div>
-        <h1>Stay on the<br><span>edge.</span></h1>
-        <p>One move. Two directions. Zero room for hesitation.</p>
-        <button id="startBtn" class="primary-btn">PLAY NOW <span>→</span></button>
-        <div class="controls"><kbd>SPACE</kbd><span>or</span><kbd>CLICK / TAP</kbd><span>to turn</span></div>
+    <section id="startScreen" class="overlay active menu-overlay">
+      <div class="menu-panel">
+        <div class="eyebrow">WAVE ARCADE</div>
+        <h1>Choose your<br><span>challenge.</span></h1>
+        <p>Hold to rise. Release to dive. Reach the portal without touching the tunnel or its hazards.</p>
+        <div id="levelGrid" class="level-grid"></div>
+        <div class="controls"><kbd>SPACE / W / ↑</kbd><span>hold to rise</span><kbd>RELEASE</kbd><span>to dive</span></div>
       </div>
     </section>
 
     <section id="gameOverScreen" class="overlay">
       <div class="panel compact">
         <div class="eyebrow danger">RUN ENDED</div>
-        <h2>Off the edge.</h2>
+        <h2>Signal lost.</h2>
         <div class="result-grid">
           <div><span>SCORE</span><strong id="finalScore">0</strong></div>
           <div><span>BEST</span><strong id="finalBest">0</strong></div>
+          <div><span>PROGRESS</span><strong id="finalProgress">0%</strong></div>
         </div>
         <div id="newBest" class="new-best">NEW PERSONAL BEST ✦</div>
         <button id="restartBtn" class="primary-btn">TRY AGAIN <span>↻</span></button>
-        <div class="controls"><kbd>SPACE</kbd><span>to restart</span></div>
+        <button id="levelsBtn" class="secondary-btn">LEVELS</button>
       </div>
     </section>
 
-    <div id="hint" class="game-hint">CLICK / TAP / SPACE TO TURN</div>
+    <section id="winScreen" class="overlay">
+      <div class="panel compact">
+        <div class="eyebrow success">LEVEL COMPLETE</div>
+        <h2>Wave cleared.</h2>
+        <div class="result-grid"><div><span>SCORE</span><strong id="winScore">0</strong></div><div><span>PROGRESS</span><strong>100%</strong></div></div>
+        <button id="nextBtn" class="primary-btn">NEXT LEVEL <span>→</span></button>
+        <button id="winLevelsBtn" class="secondary-btn">LEVELS</button>
+      </div>
+    </section>
+
+    <div id="hint" class="game-hint">HOLD TO RISE · RELEASE TO DIVE</div>
   </main>
   <script src="script.js"></script>
 </body>
